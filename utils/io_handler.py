@@ -107,6 +107,10 @@ def embl2dict(datadict_, file_name='data/Dfam_curatedonly.embl', file_type='embl
     print("subtypes:", subtypes)
     print("types_subs:", types_subs)
     print("discarded:", discarded)
+    print("types:", types)
+    print("subtypes:", subtypes)
+    print("types_subs:", types_subs)
+    print("discarded:", discarded)
 
     total_len = 0
 
