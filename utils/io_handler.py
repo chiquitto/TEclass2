@@ -1,5 +1,6 @@
 from Bio import SeqIO
 import pickle
+from utils.config import config
 
 def save_dataset(dataset_train, dataset_valid, dataset_test, file_name):
     '''
@@ -45,6 +46,14 @@ def fasta2dict(datadict_, file_name):
     return datadict_
 
 
+def add_to_dict(dictionary, key):
+    if key in dictionary: dictionary[key] += 1
+    else: dictionary[key] = 1
+
+def type_transform(input):
+    input = input.upper()
+    return config["te_keywords_correspondence"].get(input, input)
+
 def embl2dict(datadict_, file_name='data/Dfam_curatedonly.embl', file_type='embl'):
     '''
     Reads a file with annotated transposon sequences ad creates a dictonary with the following keywords
@@ -56,15 +65,26 @@ def embl2dict(datadict_, file_name='data/Dfam_curatedonly.embl', file_type='embl
    # data = SeqIO.index(file_name, file_type)
    # print(data)
 
+    subtypes = dict()
+    types = dict()
+    types_subs = dict()
+    discarded = dict()
     for l, entry in enumerate(iter(data)):
        
         try:
             seq_type = entry.annotations['comment']
             seq_subtype = seq_type[seq_type.find('SubType'):]
             seq_subtype = seq_subtype[9:seq_subtype.find('\n')]
-
+            seq_subtype = type_transform(seq_subtype)
+            
             seq_type = seq_type[seq_type.find('Type'):] 
             seq_type = seq_type[6:seq_type.find('\n')]
+            seq_type = type_transform(seq_type)
+
+            add_to_dict(types, seq_type)
+            add_to_dict(subtypes, seq_subtype)
+            add_to_dict(types_subs, f"{seq_type}#{seq_subtype}")
+
             if seq_type in datadict_.keys():
                 if seq_subtype in datadict_.keys():
                     datadict_[seq_subtype].append([str(entry.seq), str(entry.id)])
@@ -76,12 +96,17 @@ def embl2dict(datadict_, file_name='data/Dfam_curatedonly.embl', file_type='embl
             #    datadict_[seq_type].append(str(entry.seq))
             #    continue
             else:
+                add_to_dict(discarded, seq_type)
                 #print(seq_type, 'discarded') 
                 #Unknown, Retroposon, RC, Sattelite
                 continue
 
         except Exception as e:
             raise Exception('Error while loading ', file_name, '\n', e)
+    print("types:", types)
+    print("subtypes:", subtypes)
+    print("types_subs:", types_subs)
+    print("discarded:", discarded)
 
     total_len = 0
 

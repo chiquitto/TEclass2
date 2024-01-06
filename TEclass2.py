@@ -8,6 +8,7 @@ from utils.config import config
 import dnaformer.tokenizer as tokenizer
 import utils.dataset as dataset
 
+import traceback 
 
 #define the used tokenizer
 kmer_tokenizer = tokenizer.kmer_tokenizer
@@ -40,3 +41,5 @@ try:
 except Exception as e:
     print("\n\nError:")
     print(e)
+    print("\n\nTraceback:")
+    traceback.print_exc()
