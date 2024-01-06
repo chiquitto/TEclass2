@@ -4,6 +4,7 @@ channels:
   - conda-forge
   - anaconda
 dependencies:
+  - python=3.10.9
   - biopython
   - matplotlib==3.5.1
   - numpy==1.22.3

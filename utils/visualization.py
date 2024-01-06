@@ -125,10 +125,10 @@ def generate_tsv(predictions, inf_arr, dataset=None):
         seqids = [id[0] for id in inf_arr]
     else:
         seqids = [dataset.getoriginalseq(index)[1] for index in range(0, len(preds))]
-        dataframe = {
-                    'seq-id': seqids,
-                    'DNA': confidences[3]#,
-                    }
+        # dataframe = {
+        #             'seq-id': seqids,
+        #             'DNA': confidences[3]#,
+        #             }
 
     date_now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     outfile_name = config["vis_save_path"] + '/' + str(date_now) + "_predictions.tsv" 

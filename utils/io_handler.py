@@ -56,15 +56,22 @@ def embl2dict(datadict_, file_name='data/Dfam_curatedonly.embl', file_type='embl
    # data = SeqIO.index(file_name, file_type)
    # print(data)
 
+    subtypes = set()
+    types = set()
+    types_subs = set()
+    discarded = set()
     for l, entry in enumerate(iter(data)):
        
         try:
             seq_type = entry.annotations['comment']
             seq_subtype = seq_type[seq_type.find('SubType'):]
             seq_subtype = seq_subtype[9:seq_subtype.find('\n')]
+            subtypes.add(seq_subtype)
 
             seq_type = seq_type[seq_type.find('Type'):] 
             seq_type = seq_type[6:seq_type.find('\n')]
+            types.add(seq_type)
+            types_subs.add(f"{seq_type}#{seq_subtype}")
             if seq_type in datadict_.keys():
                 if seq_subtype in datadict_.keys():
                     datadict_[seq_subtype].append([str(entry.seq), str(entry.id)])
@@ -76,12 +83,17 @@ def embl2dict(datadict_, file_name='data/Dfam_curatedonly.embl', file_type='embl
             #    datadict_[seq_type].append(str(entry.seq))
             #    continue
             else:
+                discarded.add(seq_type)
                 #print(seq_type, 'discarded') 
                 #Unknown, Retroposon, RC, Sattelite
                 continue
 
         except Exception as e:
             raise Exception('Error while loading ', file_name, '\n', e)
+    print("types:", types)
+    print("subtypes:", subtypes)
+    print("types_subs:", types_subs)
+    print("discarded:", discarded)
 
     total_len = 0
 
