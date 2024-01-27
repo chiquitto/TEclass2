@@ -14,17 +14,16 @@ model_save_path: 'models/'
 #When using an EMBL file format, this keywords must are read from the Subtype or Type field
 #When using a fasta file format,  the format of the head must be like >$TE_ID $TE_KEYWORD
 # te_keywords: ["Copia","Crypton","ERV","Gypsy","hAT","Helitron","Jockey","L1_L2","Maverick","Merlin","P","Pao","RTE","SINE","TcMar","Transib"]
-# te_keywords: ["LINE","SINE"]
-te_keywords: ["LTR","COPIA","GYPSY","PAO","ERV","LINE","L1/L2","RTE","DNA","TC1/MARINER","HAT","MERLIN","TRANSIB","P","CRYPTON","SINE"]
+te_keywords: ["LTR","UNKNOWN","RRNA","LINE","DNA","SATELLITE","RC","TRNA","SIMPLE_REPEAT","SINE","ARTEFACT","SNRNA"]
 te_keywords_correspondence: {"L1":"L1/L2","L2":"L1/L2","CMC-TRANSIB":"TRANSIB","TCMAR-TC1":"TC1/MARINER"}
 #Local path to the file used for training the model, it accepts EMBL or fasta file formats
 # eg. ./TEclass2/data/$TEs_DATASET.fasta
 # te_db_path: 'data/clust_cats_16.fa'
-te_db_path: 'data/Dfam_corrected.embl'
+te_db_path: 'data/Dfam_Drosophila.embl'
 
 #Path used to save the formated dataset objects (use the prefix, for *.pkl)
 # dataset_path: 'data/databases/clust_cats_16'
-dataset_path: 'data/databases/Dfam_corrected.embl'
+dataset_path: 'data/databases/Dfam_Drosophila'
 
 #Set it to None or '' to start or use name of last checkpoint directory
 #from ./TEclass2/models/$model_name/$highest_checkpoint_id
@@ -38,13 +37,13 @@ low_memory: True      #only predict classes, no additional kmers or motif sequen
 
 ###CONFIGURATION FOR TRAINING THE MODEL
 #Number of epochs to be used for training the model
-num_train_epochs: 50
+num_train_epochs: 100
 #Number of sequences that are computed in parallel in each step for the training step
 train_batch_size: 12
 #Number of sequences that are computed in parallel in each step for the evaluation step
 eval_batch_size: 8
 #Number of gradient values stored before updating weights
-gradient_accumulation_steps: 50
+gradient_accumulation_steps: 100
 #Number of gradient values in the evaluation step stored before updating weights
 eval_accumulation_steps: 10
 #Probability for each sequence to be augmented during training 

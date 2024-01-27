@@ -53,18 +53,27 @@ cp config.yml config_chiquitto.yml
 
 Pegar as primeiras 25k sequencias
 ```bash
-cat -n data/Dfam.embl | grep "ID   " | head -n 5001 | tail
+cat -n data/Dfam.embl | grep "ID   " | head -n 15000 | tail
 ```
-linha 355943
+linha 943151
 
 ```bash
-head -n 355942 data/Dfam.embl > data/Dfam_head.embl
+head -n 943150 data/Dfam.embl > data/Dfam_head.embl
 ```
 
 # Preparar o arquivo Dfam para o TEclass2_database
 
 ```bash
 python utils/dfam_embl2embl.py data/Dfam_head.embl data/Dfam_corrected.embl
+```
+
+# Filtrar dataset *.embl
+
+```bash
+python utils/embl_filter.py data/Dfam.embl data/Dfam_Mammalia.embl "Mammalia.*"
+python utils/embl_filter.py data/Dfam.embl data/Dfam_Drosophila.embl "Drosophila.*"
+python utils/embl_filter.py data/Dfam.embl data/Dfam_Timema.embl "Timema.*"
+python utils/embl_filter.py data/Dfam.embl data/Dfam_Lysandra.embl "Lysandra.*"
 ```
 
 # Criar o database
@@ -80,12 +89,12 @@ python TEclass2.py --database -c config_chiquitto.yml > log_database.txt
 mkdir models
 nohup python TEclass2.py --train -c config_chiquitto.yml &> log_train.txt &
 ```
-[1] 248245
+[1] 345658
 
 Para acompanhar os logs do treinamento
 
 ```bash
-tail -f nohup.log
+tail -f log_train.txt
 ```
 
 Para resolver o problema (warning) `" of type <class 'str'> for key "eval/report" as a scalar. This invocation of Tensorboard's writer.add_scalar() is incorrect so we dropped this attribute.`, use esta página:
@@ -99,3 +108,39 @@ https://huggingface.co/docs/transformers/training?highlight=compute_metrics
 python TEclass2.py --classify -c config_chiquitto.yml -f data/Dfam.embl.fasta -o outfile.log &> ./classified.log
 ```
 
+# Tricks - Data analysis
+
+Obter a quantidade de dados por especie do dataset:
+
+```bash
+grep "^OS" < data/Dfam.embl | awk '{print substr($0,6) }' | sort | uniq -c | sort -nr > data/count_OS1.txt
+grep "^OS" < data/Dfam.embl | awk '{print $2 }' | sort | uniq -c | sort -nr > data/count_OS2.txt
+
+grep "^ID   " < data/Dfam.embl | wc -l
+grep "^ID   " < data/Dfam_Mammalia.embl | wc -l
+grep "^ID   " < data/Dfam_Drosophila.embl | wc -l
+grep "^ID   " < data/Dfam_Timema.embl | wc -l
+grep "^ID   " < data/Dfam_Lysandra.embl | wc -l
+ls -alh data/Dfam.embl data/Dfam_*
+```
+
+# Para executar com Drosophila
+
+Execute os comandos a seguir.
+Há instruções para serem executadas manualmente.
+
+```bash
+# cd TEClass_folder
+# Ativar ambiente conda (conda activate TEclass2Chiquitto)
+cp config_chiquitto.yml config_Drosophila.yml
+# Editar o config_Drosophila.yml e alterar model_name=Drosophila
+python utils/dfam_embl2embl.py data/Dfam.embl data/Dfam_corrected.embl
+python utils/embl_filter.py data/Dfam_corrected.embl data/Dfam_Drosophila.embl "Drosophila.*"
+# Editar o config_Drosophila.yml e alterar te_db_path=data/Dfam_Drosophila.embl
+# Editar o config_Drosophila.yml e alterar dataset_path=data/databases/Dfam_Drosophila
+python TEclass2.py --database -c config_Drosophila.yml > log_database_Drosophila.txt
+# Conferir no log_database_Drosophila se o total foi de 62191
+# Observar o log_database_Drosophila e identificar os elementos com contagem igual a zero,
+# e remover do config os te_keywords esses com contagem zero
+nohup python TEclass2.py --train -c config_Drosophila.yml &> log_train_Drosophila.txt &
+```
