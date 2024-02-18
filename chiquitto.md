@@ -105,7 +105,7 @@ https://huggingface.co/docs/transformers/training?highlight=compute_metrics
 # Classificar sequencias
 
 ```bash
-python TEclass2.py --classify -c config_chiquitto.yml -f data/Dfam.embl.fasta -o outfile.log &> ./classified.log
+python TEclass2.py --classify -c config_chiquitto.yml -f tests/drosophila.final.TEs.fa -o outfile.log &> ./classified.log
 ```
 
 # Tricks - Data analysis
@@ -122,6 +122,19 @@ grep "^ID   " < data/Dfam_Drosophila.embl | wc -l
 grep "^ID   " < data/Dfam_Timema.embl | wc -l
 grep "^ID   " < data/Dfam_Lysandra.embl | wc -l
 ls -alh data/Dfam.embl data/Dfam_*
+```
+
+# Modelo TEclass2
+```bash
+mkdir models/teclass2
+cd models/teclass2
+wget https://www.bioinformatics.uni-muenster.de/share/TEclass2/model/config.json
+wget https://www.bioinformatics.uni-muenster.de/share/TEclass2/model/optimizer.pt
+wget https://www.bioinformatics.uni-muenster.de/share/TEclass2/model/pytorch_model.bin
+wget https://www.bioinformatics.uni-muenster.de/share/TEclass2/model/rng_state.pth
+wget https://www.bioinformatics.uni-muenster.de/share/TEclass2/model/scheduler.pt
+wget https://www.bioinformatics.uni-muenster.de/share/TEclass2/model/trainer_state.json
+wget https://www.bioinformatics.uni-muenster.de/share/TEclass2/model/training_args.bin
 ```
 
 # Para executar com Drosophila
@@ -143,4 +156,68 @@ python TEclass2.py --database -c config_Drosophila.yml > log_database_Drosophila
 # Observar o log_database_Drosophila e identificar os elementos com contagem igual a zero,
 # e remover do config os te_keywords esses com contagem zero
 nohup python TEclass2.py --train -c config_Drosophila.yml &> log_train_Drosophila.txt &
+```
+
+```bash
+# cd TEClass_folder
+# Ativar ambiente conda (conda activate TEclass2Chiquitto)
+cp config_chiquitto.yml config_Danio.yml
+# Editar o config_Danio.yml e alterar model_name=Danio
+python utils/dfam_embl2embl.py data/Dfam.embl data/Dfam_corrected.embl
+python utils/embl_filter.py data/Dfam_corrected.embl data/Dfam_Danio.embl "Danio.*"
+# Editar o config_Danio.yml e alterar te_db_path=data/Dfam_Danio.embl
+# Editar o config_Danio.yml e alterar dataset_path=data/databases/Dfam_Danio
+python TEclass2.py --database -c config_Danio.yml > log_database_Danio.txt
+# Conferir no log_database_Danio se o total foi de 62191
+# Observar o log_database_Danio e identificar os elementos com contagem igual a zero,
+# e remover do config os te_keywords esses com contagem zero
+nohup python TEclass2.py --train -c config_Danio.yml &> log_train_Danio.txt &
+```
+
+```bash
+# cd TEClass_folder
+# Ativar ambiente conda (conda activate TEclass2Chiquitto)
+cp config_chiquitto.yml config_Oncorhynchus.yml
+# Editar o config_Oncorhynchus.yml e alterar model_name=Oncorhynchus
+python utils/dfam_embl2embl.py data/Dfam.embl data/Dfam_corrected.embl
+python utils/embl_filter.py data/Dfam_corrected.embl data/Dfam_Oncorhynchus.embl "Oncorhynchus.*"
+# Editar o config_Oncorhynchus.yml e alterar te_db_path=data/Dfam_Oncorhynchus.embl
+# Editar o config_Oncorhynchus.yml e alterar dataset_path=data/databases/Dfam_Oncorhynchus
+python TEclass2.py --database -c config_Oncorhynchus.yml > log_database_Oncorhynchus.txt
+# Conferir no log_database_Oncorhynchus se o total foi de 62191
+# Observar o log_database_Oncorhynchus e identificar os elementos com contagem igual a zero,
+# e remover do config os te_keywords esses com contagem zero
+nohup python TEclass2.py --train -c config_Oncorhynchus.yml &> log_train_Oncorhynchus.txt &
+```
+
+```bash
+# cd TEClass_folder
+# Ativar ambiente conda (conda activate TEclass2Chiquitto)
+cp config_chiquitto.yml config_Heliconius.yml
+# Editar o config_Heliconius.yml e alterar model_name=Heliconius
+python utils/dfam_embl2embl.py data/Dfam.embl data/Dfam_corrected.embl
+python utils/embl_filter.py data/Dfam_corrected.embl data/Dfam_Heliconius.embl "Heliconius.*"
+# Editar o config_Heliconius.yml e alterar te_db_path=data/Dfam_Heliconius.embl
+# Editar o config_Heliconius.yml e alterar dataset_path=data/databases/Dfam_Heliconius
+python TEclass2.py --database -c config_Heliconius.yml > log_database_Heliconius.txt
+# Conferir no log_database_Heliconius se o total foi de 62191
+# Observar o log_database_Heliconius e identificar os elementos com contagem igual a zero,
+# e remover do config os te_keywords esses com contagem zero
+nohup python TEclass2.py --train -c config_Heliconius.yml &> log_train_Heliconius.txt &
+```
+
+```bash
+# cd TEClass_folder
+# Ativar ambiente conda (conda activate TEclass2Chiquitto)
+cp config_chiquitto.yml config_Timema.yml
+# Editar o config_Timema.yml e alterar model_name=Timema
+python utils/dfam_embl2embl.py data/Dfam.embl data/Dfam_corrected.embl
+python utils/embl_filter.py data/Dfam_corrected.embl data/Dfam_Timema.embl "Timema.*"
+# Editar o config_Timema.yml e alterar te_db_path=data/Dfam_Timema.embl
+# Editar o config_Timema.yml e alterar dataset_path=data/databases/Dfam_Timema
+python TEclass2.py --database -c config_Timema.yml > log_database_Timema.txt
+# Conferir no log_database_Timema se o total foi de 62191
+# Observar o log_database_Timema e identificar os elementos com contagem igual a zero,
+# e remover do config os te_keywords esses com contagem zero
+nohup python TEclass2.py --train -c config_Timema.yml &> log_train_Timema.txt &
 ```
