@@ -5,7 +5,8 @@ conda create python=3.10.9 --name TEclass2Chiquitto -y
 
 conda activate TEclass2Chiquitto
 
-conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+# conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+pip3 install torch torchvision torchaudio
 
 conda install anaconda::biopython
 pip install matplotlib==3.5.1

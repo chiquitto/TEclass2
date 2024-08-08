@@ -46,7 +46,7 @@ def check_paths(config):
         if not file_path:
             raise SystemExit("Error: File for classification does not exist.")
     elif cmd_args.train:
-        dataset_path = os.path.exists(config['dataset_path'] + "-train.pkl")
+        dataset_path = os.path.exists(config['dataset_path'] + "_train.csv")
         if not dataset_path:
             raise SystemExit("Error: Dataset  path does not exist.\nCheck the parameter dataset_path in the configuration file.")
     elif cmd_args.database:

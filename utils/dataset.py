@@ -48,7 +48,11 @@ class TransposonDataset(Dataset):
         eps = 0
         for i in range(len(datadict_.keys())): 
             sample_weight.append(self.labels.count(i)+eps)
-        self.sample_weight = [1 / (x / sum(sample_weight)) for x in sample_weight] #get inverse of occurence weigths -> large occurences weigth less
+        sum_sample_weight = sum(sample_weight)
+        if sum_sample_weight > 0:
+            self.sample_weight = [1 / (max(x,1) / sum(sample_weight)) for x in sample_weight] #get inverse of occurence weigths -> large occurences weigth less
+        else:
+            self.sample_weight = [1 for x in sample_weight]
         #self.sample_weight = [x / sum(self.sample_weight) for x in self.sample_weight] #additional normalization to 0-1
         self.sample_weight = torch.tensor(self.sample_weight, device = config['device'])
 
@@ -114,6 +118,11 @@ class ClassificationDataset(Dataset):
         self.seqs = [seq[0].upper() for seq in data]
         #save sequence ids
         self.ids = [id[1] for id in data]
+
+        if data[0][2]:
+            self.labels = [id[2] for id in data]
+        else:
+            self.labels = []
 
         #save kmer embeddings and embedding_with when kmers are dilated
         embeddings = [seq2kmer(seq[0].upper(), embedd_larger_seq) for seq in data]

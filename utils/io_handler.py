@@ -1,3 +1,4 @@
+import csv
 from Bio import SeqIO
 import pickle
 from utils.config import config
@@ -6,24 +7,56 @@ def save_dataset(dataset_train, dataset_valid, dataset_test, file_name):
     '''
         Saves a dataset to file_name with corresponding dashes (-train/-valid/-test)
     '''
-    with open(file_name+'-train.pkl', 'wb') as f:
-        pickle.dump(dataset_train, f)
-    with open(file_name+'-valid.pkl', 'wb') as f:
-        pickle.dump(dataset_valid, f)
-    with open(file_name+'-test.pkl', 'wb') as f:
-        pickle.dump(dataset_test, f)
+    # with open(file_name+'-train.pkl', 'wb') as f:
+    #     pickle.dump(dataset_train, f)
+    # with open(file_name+'-valid.pkl', 'wb') as f:
+    #     pickle.dump(dataset_valid, f)
+    # with open(file_name+'-test.pkl', 'wb') as f:
+    #     pickle.dump(dataset_test, f)
+    
+    save_dataset_csv(dataset_train, file_name+'_train.csv')
+    save_dataset_csv(dataset_valid, file_name+'_valid.csv')
+    save_dataset_csv(dataset_test, file_name+'_test.csv')
+
+def save_dataset_csv(dataset, file_name):
+    with open(file_name, 'w') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(dataset)
 
 def load_dataset(file_name): 
     '''
         Loads and returns a dataset from a file_name with corresponding dashes (-train/-valid/-test)
     '''
-    with open(file_name+'-train.pkl', 'rb') as f:
-        dataset_train = pickle.load(f)
-    with open(file_name+'-valid.pkl', 'rb') as f:
-        dataset_valid = pickle.load(f)
-    with open(file_name+'-test.pkl', 'rb') as f:
-        dataset_test = pickle.load(f)
+    # with open(file_name+'-train.pkl', 'rb') as f:
+    #     dataset_train = pickle.load(f)
+    # with open(file_name+'-valid.pkl', 'rb') as f:
+    #     dataset_valid = pickle.load(f)
+    # with open(file_name+'-test.pkl', 'rb') as f:
+    #     dataset_test = pickle.load(f)
+
+    dataset_train = load_dataset_csv(file_name+'_train.csv')
+    dataset_valid = load_dataset_csv(file_name+'_valid.csv')
+    dataset_test = load_dataset_csv(file_name+'_test.csv')
+
     return dataset_train, dataset_valid, dataset_test
+
+def load_dataset_csv(file_name):
+    with open(file_name, newline='') as csvfile:
+        reader = csv.reader(csvfile)
+        r = []
+        for row in reader:
+            r.append([row[0], row[1], int(row[2])])
+        return r
+        # return [[row[0], row[1], int(row[2])] for row in reader]
+
+def csv2dict(datadict_, file_name):
+    with open(file_name) as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if not row["class"] in datadict_:
+                continue
+            datadict_[row["class"]].append([row["seq"], row["id"]])
+    return datadict_
 
 def fasta2dict(datadict_, file_name):
     data = SeqIO.parse(file_name, "fasta")
@@ -125,19 +158,21 @@ def embl2dict(datadict_, file_name='data/Dfam_curatedonly.embl', file_type='embl
 def load_classification_file(file_name, file_type='fasta'):
     '''
         Loads a file which can be used for classification
-        Currently only fasta/fastq tested 
     '''
-    data = SeqIO.parse(file_name, file_type)
-    data_ = []
-    for l, entry in enumerate(iter(data)):
-        try:
-            entry_ = [str(entry.seq), str(entry.id)]
-            data_.append(entry_)
-            
-        except Exception as e:
-            raise Exception('Error while loading ', file_name, '\n', e)
 
-    return data_
+    if file_name.lower()[-3:] == 'csv':
+        return load_dataset_csv(file_name)
+    else:
+        data = SeqIO.parse(file_name, file_type)
+        data_ = []
+        for l, entry in enumerate(iter(data)):
+            try:
+                entry_ = [str(entry.seq), str(entry.id)]
+                data_.append(entry_)
+                
+            except Exception as e:
+                raise Exception('Error while loading ', file_name, '\n', e)
+        return data_
 
 
 def load_vocab(file_name='data/5mer_vocab'):

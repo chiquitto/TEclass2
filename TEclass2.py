@@ -20,6 +20,8 @@ try:
         exit()
     elif config['train']:
         dataset_train, dataset_valid, dataset_test = dataset.return_datasets(kmer_tokenizer, config['dataset_path'])
+        if len(dataset_valid) == 0: dataset_valid = None
+
         #call after dataset has been created -> for custom loss-weigths of specific dataset
         import dnaformer.dnaformer as dnaformer
         # LOAD MODEL

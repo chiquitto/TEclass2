@@ -1,3 +1,5 @@
+import random
+
 from utils.config import config
 from utils.augmentation import normalize
 import utils.io_handler as io
@@ -15,6 +17,7 @@ def seq2kmer(seq, embedd_larger_seq=True, max_len = config["max_position_embeddi
     #dilate kmers with larger embedding_window 'w'
     if embedd_larger_seq:
         w = min(max(1, int(len(seq) / max_len)), k-1) #compute w dynamically up to k steps
+        w = max(1, w)
     else: w=1
     kmer = [seq[i:i+k] for i in range(0, len(seq)+1-k, w)]
     kmer = " ".join(kmer)
@@ -49,10 +52,13 @@ def dict2dataset(data_, save=True, save_file_name=config["dataset_path"], normal
     norm = normalize()
     for key in data_.keys():
         dataset_ = []
-        for seq in (j for j in data_[key]):
+        # for seq in (j for j in data_[key]):
+        for seq in data_[key]:
             if normalization: 
                 dataset_ += [[norm(seq[0]), seq[1], classification_map[key]]]
             else: dataset_ += [[seq[0], seq[1], classification_map[key]]]
+        
+        random.shuffle(dataset_)
 
         if split:
             train, valid, test = split_dataset(dataset_)
@@ -77,8 +83,10 @@ def create_new_dataset(file_name, split=True, save=False):
         return io.load_classification_file(file_name)
     elif not config['classification'] and config['prediction']:
         dict = None
-        if file_name.endswith(".embl"):
-            dict = io.embl2dict(datadict_, file_name=file_name)
+        if file_name.endswith(".csv"):
+            dict = io.csv2dict(datadict_, file_name=file_name)
+        # elif file_name.endswith(".embl"):
+        #     dict = io.embl2dict(datadict_, file_name=file_name)
         elif file_name.endswith(".fa") or file_name.endswith(".fasta"):
             dict = io.fasta2dict(datadict_, file_name=file_name)
         print('Dataset created')
